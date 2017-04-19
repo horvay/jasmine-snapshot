@@ -1,6 +1,6 @@
 {
-    "name": "jasmine-shapshot",
-    "version": "1.0.0",
+    "name": "jasmine-snapshot",
+    "version": "1.0.2",
     "description": "Simple version of a basic flux type library written in Typescript",
     "main": "lib/jasmine-snapshot.min.js",
     "types": "lib/jasmine-snapshot.d.ts",
@@ -26,7 +26,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/horvay/jasmine-shapshot"
+        "url": "https://github.com/horvay/jasmine-snapshot"
     },
     "keywords": [
         "flux",

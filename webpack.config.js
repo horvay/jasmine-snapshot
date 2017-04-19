@@ -38,10 +38,14 @@ const config = {
 		]
 	},
 	resolve: {
-		modules: [path.resolve('./src')],
-		extensions: ['.json', '.ts']
+		modules: [path.resolve('./src'), path.resolve('./node_modules')],
+		extensions: ['.json', '.js', '.ts']
 	},
-	plugins: plugins
+	plugins: plugins,
+	externals: {
+		vkbeautify: 'vkbeautify',
+		difflib: 'difflib'
+	}
 };
 
 module.exports = config;
