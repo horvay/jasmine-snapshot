@@ -1,0 +1,13 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "typescript.tsdk": "./node_modules/typescript/lib",
+    "typescript.format.placeOpenBraceOnNewLineForFunctions": true,
+    "typescript.format.placeOpenBraceOnNewLineForControlBlocks": true,
+    "javascript.format.placeOpenBraceOnNewLineForFunctions": true,
+    "javascript.format.placeOpenBraceOnNewLineForControlBlocks": true,
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 200,
+    "editor.renderWhitespace": "all",
+    "editor.minimap.enabled": true,
+    "files.trimTrailingWhitespace": true
+}
