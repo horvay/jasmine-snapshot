@@ -1,58 +1,62 @@
 {
-    "name": "jasmine-shapshot",
-    "version": "1.0.0",
-    "description": "Simple version of a basic flux type library written in Typescript",
-    "main": "lib/jasmine-snapshot.min.js",
-    "types": "lib/jasmine-snapshot.d.ts",
-    "scripts": {
-        "build": "webpack --env build",
-        "dev": "webpack --progress --colors --watch --env dev",
-        "test": "jest"
-    },
-    "dependencies": {
-        "@types/vkbeautify": "^0.99.1",
-        "vkbeautify": "^0.99.2",
-        "difflib": "^0.2.4"
-    },
-    "devDependencies": {
-        "@types/jest": "*",
-        "jest": "*",
-        "ts-jest": "^19.0.8",
-        "ts-loader": "^2.0.3",
-        "tslint": "*",
-        "typescript": "^2.2.2",
-        "webpack": "^2.3.3",
-        "yargs": "6.6.0"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/horvay/jasmine-shapshot"
-    },
-    "keywords": [
-        "flux",
-        "redux",
-        "one-way-binding",
-        "library",
-        "universal",
-        "umd",
-        "typescript",
-        "commonjs"
+  "name": "jasmine-shapshot",
+  "version": "1.0.0",
+  "description": "Simple version of a basic flux type library written in Typescript",
+  "main": "lib/jasmine-snapshot.min.js",
+  "types": ["lib/jasmine-snapshot.d.ts", "types/difflib.d.ts"],
+  "scripts": {
+    "build": "webpack --env build",
+    "dev": "webpack --progress --colors --watch --env dev",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@types/vkbeautify": "^0.99.1",
+    "vkbeautify": "^0.99.2",
+    "difflib": "^0.2.4"
+  },
+  "devDependencies": {
+    "@types/jest": "*",
+    "jest": "*",
+    "ts-jest": "^19.0.10",
+    "ts-loader": "^2.0.3",
+    "tslint": "*",
+    "typescript": "^2.2.2",
+    "webpack": "^2.3.3",
+    "yargs": "6.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/horvay/jasmine-shapshot"
+  },
+  "keywords": [
+    "flux",
+    "redux",
+    "one-way-binding",
+    "library",
+    "universal",
+    "umd",
+    "typescript",
+    "commonjs"
+  ],
+  "author": "Horvay, Greg",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/horvay/jasmine-snapshot"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
     ],
-    "author": "Horvay, Greg",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/horvay/jasmine-snapshot"
+    "unmockedModulePathPatterns": [
+      "node_modules",
+      "difflib"
+    ],
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
-    "jest": {
-        "moduleFileExtensions": [
-            "ts",
-            "tsx",
-            "js"
-        ],
-        "transform": {
-            ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
-        },
-        "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
-        "testResultsProcessor": "<rootDir>/node_modules/ts-jest/coverageprocessor.js"
-    }
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "testResultsProcessor": "<rootDir>/node_modules/ts-jest/coverageprocessor.js"
+  }
 }

@@ -15,10 +15,5 @@
         "suppressImplicitAnyIndexErrors": true,
         "noEmitOnError": true,
         "strictNullChecks": true
-    },
-    "exclude": [
-        "**/node_modules/*",
-        "**/lib/typings/*",
-        "**/*.d.ts"
-    ]
+    }
 }
