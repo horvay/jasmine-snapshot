@@ -1,6 +1,6 @@
 {
   "name": "jasmine-shapshot",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Simple version of a basic flux type library written in Typescript",
   "main": "lib/jasmine-snapshot.min.js",
   "types": ["lib/jasmine-snapshot.d.ts", "types/difflib.d.ts"],
