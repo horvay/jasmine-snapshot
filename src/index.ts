@@ -48,7 +48,7 @@ let IsCurcularDependency = (value: any) =>
 {
     if (typeof value === "object" && value)
     {
-        if (parsed_values.indexOf(value) !== -1)
+        if (parsed_values.indexOf(value) === -1)
         {
             parsed_values.push(value);
             return false;
@@ -58,7 +58,9 @@ let IsCurcularDependency = (value: any) =>
             return true;
         }
     }
-}
+
+    return false;
+};
 
 /**
  * Compares the snapshot to the actual option. Note this method will stringify

@@ -1,33 +1,30 @@
-jest.autoMockOff();
-jest.dontMock("difflib");
-jest.dontMock("vkbeautify");
-
-import difflib from "difflib";
+import * as difflib from "difflib";
 import { MatchesSnapshot } from "../src/index";
 
-let last_failed_message: string;
-let fail = (message: string) =>
-{
-    last_failed_message = message;
-}
+declare var fail: (message: string) => void;
 
-beforeEach(() =>
+describe("diff test", () =>
 {
-    last_failed_message = "";
-    console.error = jest.fn();
+    beforeAll(() =>
+    {
+        fail = jest.fn();
+        console.error = jest.fn();
+    });
 
-});
+    it("matches simple string", () =>
+    {
+        MatchesSnapshot("greg", "greg");
+        expect(fail).not.toBeCalled();
+    });
 
-it("matches simple string", () =>
-{
-    difflib.unifiedDiff("", "");
-    MatchesSnapshot("greg", "greg");
-    expect(last_failed_message).toBe("");
-});
+    it("fails with diff", () =>
+    {
+        let mock = jest.fn();
+        mock.mockReturnValue(["tyler", "moose"]);
+        difflib.default = { unifiedDiff: mock };
 
-it("fails with diff", () =>
-{
-    MatchesSnapshot("tyler", "moose");
-    expect(last_failed_message).toBe("");
-    expect(console.error).toBeCalledWith("");
+        MatchesSnapshot("tyler", "moose");
+        expect(fail).lastCalledWith("See diff above. Consider updating snapshot (if valid) to:\n\nmoose");
+        expect(console.error).toHaveBeenCalledTimes(2);
+    });
 });

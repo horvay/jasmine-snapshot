@@ -1,9 +1,12 @@
 {
-  "name": "jasmine-shapshot",
-  "version": "1.2.0",
+  "name": "jasmine-snapshot",
+  "version": "1.2.3",
   "description": "Simple version of a basic flux type library written in Typescript",
   "main": "lib/jasmine-snapshot.min.js",
-  "types": ["lib/jasmine-snapshot.d.ts", "types/difflib.d.ts"],
+  "types": [
+    "lib/jasmine-snapshot.d.ts",
+    "types/difflib.d.ts"
+  ],
   "scripts": {
     "build": "webpack --env build",
     "dev": "webpack --progress --colors --watch --env dev",
@@ -17,6 +20,7 @@
   "devDependencies": {
     "@types/jest": "*",
     "jest": "*",
+    "jest-cli": "^19.0.2",
     "ts-jest": "^19.0.10",
     "ts-loader": "^2.0.3",
     "tslint": "*",
@@ -26,7 +30,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/horvay/jasmine-shapshot"
+    "url": "https://github.com/horvay/jasmine-snapshot"
   },
   "keywords": [
     "flux",
