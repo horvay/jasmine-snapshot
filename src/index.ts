@@ -1,7 +1,9 @@
 import difflib from "difflib";
 import { xml, json } from "vkbeautify";
 
-// Add more entries to this array if you have other exclusions for snapshot checks
+/**
+ * Add more entries to this array if you have other exclusions for snapshot checks
+ */
 export let KeyExceptionList = ["typeof"];
 
 export let MatchesSnapshot = (snapshot: string, actual: string) =>
@@ -41,6 +43,23 @@ export let MatchesJSONSnapshot = (snapshot: string, actual: string) =>
     MatchesSnapshot(prettySnapshot, prettyActual);
 };
 
+let parsed_values = new Array<object>();
+let IsCurcularDependency = (value: any) =>
+{
+    if (typeof value === "object" && value)
+    {
+        if (parsed_values.indexOf(value) !== -1)
+        {
+            parsed_values.push(value);
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+}
+
 /**
  * Compares the snapshot to the actual option. Note this method will stringify
  * the actual value for the snnapshot compare and remove any key/values that contain the
@@ -50,15 +69,21 @@ export let MatchesJSONSnapshot = (snapshot: string, actual: string) =>
  */
 export let MatchesJSSnapshot = (snapshot: string, actual: any) =>
 {
-    let removeIEPoo = (key, value) => {
-        if (typeof key === "string" && key.indexOf("typeof") > 0)
+    let removeIEPoo = (key, value) =>
+    {
+        if (typeof key === "string" && KeyExceptionList.some((ex) => key.indexOf(ex) > 0))
         {
-            return undefined;
+            return;
+        }
+        else if (IsCurcularDependency(value))
+        {
+            return;
         }
 
         return value;
     };
 
+    parsed_values = new Array<object>();
     let prettyActual = json(JSON.stringify(actual, removeIEPoo));
     let prettySnapshot = json(snapshot);
 

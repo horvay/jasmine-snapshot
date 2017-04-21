@@ -41,7 +41,7 @@
     "author": "Horvay, Greg",
     "license": "MIT",
     "bugs": {
-        "url": "update me"
+        "url": "https://github.com/horvay/jasmine-snapshot"
     },
     "jest": {
         "moduleFileExtensions": [
