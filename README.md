@@ -39,8 +39,8 @@ it("matces JS snapshot ", () => {
     MatchesSnapshot(`{"chicken_type" :   "fried" }`, actual);
 });
 
-it("matces complex JS snapshot ", () => {
-
+it("matces complex JS snapshot ", () =>
+{
     let actual = {
         chicken_type: "fried",
         your: "mother",
@@ -71,4 +71,35 @@ Note that the circular property was removed since it was a circular reference an
 Next these will fail with the diff informations
 
 ```ts
+it("Does not match snapshot ", () =>
+{
+    let actual = {
+        chicken_type: "fried",
+        your: "mother",
+        circular: {},
+        complex: {
+            woahwoah: "woah",
+            array: ["woah", "woah", "woah", "watch the magic"]
+        }
+    };
+
+    actual.circular = actual;
+
+    // Do real stuff . . .
+
+    let snapshot = `{
+        chicken_type: "fried",
+
+        complex: {  woahwoah: "woah",
+        array: ["yeah", "yeah", "yeah", "watch the magic"]
+         }  }`;
+
+    MatchesSnapshot(snapshot, actual);
+});
+```
+
+This will produce the following output:
+
+```
+
 ```
