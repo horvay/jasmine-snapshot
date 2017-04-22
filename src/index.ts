@@ -6,6 +6,11 @@ import { xml, json } from "vkbeautify";
  */
 export let KeyExceptionList = ["typeof"];
 
+export let ResetExceptionList = () =>
+{
+    KeyExceptionList = ["typeof"];
+}
+
 export let MatchesSnapshot = (snapshot: string, actual: string) =>
 {
     if (actual !== snapshot)
@@ -73,7 +78,7 @@ export let MatchesJSSnapshot = (snapshot: string, actual: any) =>
 {
     let removeIEPoo = (key, value) =>
     {
-        if (typeof key === "string" && KeyExceptionList.some((ex) => key.indexOf(ex) > 0))
+        if (typeof key === "string" && KeyExceptionList.some((ex) => key.indexOf(ex) !== -1))
         {
             return;
         }
