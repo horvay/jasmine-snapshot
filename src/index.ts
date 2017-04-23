@@ -1,5 +1,6 @@
 import difflib from "difflib";
 import { xml, json } from "vkbeautify";
+import { parseString } from "xml2js";
 
 /**
  * Add more entries to this array if you have other exclusions for snapshot checks
@@ -9,7 +10,9 @@ export let KeyExceptionList = ["typeof"];
 export let ResetExceptionList = () =>
 {
     KeyExceptionList = ["typeof"];
-}
+};
+
+declare var console;
 
 export let MatchesSnapshot = (snapshot: string, actual: string) =>
 {
@@ -22,18 +25,34 @@ export let MatchesSnapshot = (snapshot: string, actual: string) =>
     }
 };
 
+function getJSFromXML(xml: string)
+{
+    return new Promise<object>((resolve, reject) =>
+    {
+        parseString(xml, { async: true }, (err: any, result: any) =>
+        {
+            resolve(result);
+        });
+    });
+}
+
+async function returnJSFromXMLAsync(xml: string)
+{
+    let js_promise = getJSFromXML(xml);
+    let js_object = await js_promise;
+    return js_object;
+}
+
 /**
  * compares an HTML or XML values to a snapshot
  * @param snapshot the snapshot to compare the actual to
  * @param actual the actual xml/html string to compare to the snapshot
  */
-export let MatchesXMLSnapshot = (snapshot: string, actual: string) =>
+export async function MatchesXMLSnapshot(snapshot: string, actual: string)
 {
-    let prettyActual = xml(actual);
-    let prettySnapshot = xml(snapshot);
-
-    MatchesSnapshot(prettySnapshot, prettyActual);
-};
+    let jsXML = await returnJSFromXMLAsync(actual);
+    MatchesJSSnapshot(snapshot, jsXML);
+}
 
 /**
  * compares a snapshot to a json string
@@ -67,6 +86,45 @@ let IsCurcularDependency = (value: any) =>
     return false;
 };
 
+function collectAllKeys(js_object: any)
+{
+    const allKeys = new Array<string>();
+
+    JSON.stringify(js_object, (key: string, val: any) =>
+    {
+        if (isIEPooOrCurcularReferences(key, val))
+        {
+            return;
+        }
+
+        allKeys.push(key);
+        return val;
+    });
+
+    return allKeys;
+}
+
+function isIEPooOrCurcularReferences(key, value)
+{
+    if (typeof key === "string" && KeyExceptionList.some((ex) => key.indexOf(ex) !== -1))
+    {
+        return true;
+    }
+    else if (IsCurcularDependency(value))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+function orderedStringifyAndClean(js_object: any)
+{
+    let keys = collectAllKeys(js_object);
+
+    return JSON.stringify(js_object, keys);
+}
+
 /**
  * Compares the snapshot to the actual option. Note this method will stringify
  * the actual value for the snnapshot compare and remove any key/values that contain the
@@ -76,22 +134,8 @@ let IsCurcularDependency = (value: any) =>
  */
 export let MatchesJSSnapshot = (snapshot: string, actual: any) =>
 {
-    let removeIEPoo = (key, value) =>
-    {
-        if (typeof key === "string" && KeyExceptionList.some((ex) => key.indexOf(ex) !== -1))
-        {
-            return;
-        }
-        else if (IsCurcularDependency(value))
-        {
-            return;
-        }
-
-        return value;
-    };
-
     parsed_values = new Array<object>();
-    let prettyActual = json(JSON.stringify(actual, removeIEPoo));
+    let prettyActual = json(orderedStringifyAndClean(actual));
     let prettySnapshot = json(snapshot);
 
     MatchesSnapshot(prettySnapshot, prettyActual);

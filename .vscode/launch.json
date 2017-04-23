@@ -17,9 +17,9 @@
             "env": {
                 "NODE_ENV": "development"
             },
-            "externalConsole": false,
+            "console": "integratedTerminal",
             "sourceMaps": true,
-            "outDir": null
+            "outFiles": []
         }
     ]
 }

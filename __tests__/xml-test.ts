@@ -1,7 +1,8 @@
 import * as difflib from "difflib";
-import { MatchesJSSnapshot } from "../src/index";
+import { MatchesXMLSnapshot } from "../src/index";
 
 declare var fail: (message: string) => void;
+declare var console: any;
 
 describe("diff test", () =>
 {
@@ -11,13 +12,32 @@ describe("diff test", () =>
         console.error = jest.fn();
     });
 
-    it("matches simple string", () =>
+    it("matches simple string", async () =>
     {
+        jest.resetAllMocks();
+
         let mock = jest.fn();
         mock.mockReturnValue(["tyler", "moose"]);
         difflib.default = { unifiedDiff: mock };
 
-        // MatchesJSSnapshot("greg", "greg");
-        // expect(fail).not.toBeCalled();
+        let snapshot = `
+        {
+            "html": {
+                "div": [
+                    {
+                        "_": "some text",
+                        "$": {
+                            "name": "knocker",
+                            "id": "fart"
+                        }
+                    }
+                ],
+                "aoue": "aoeu"
+            }
+        }`;
+
+        await MatchesXMLSnapshot(snapshot, `<html><div name="knocker" id="fart">some text</div></html>`);
+
+        expect(fail).toHaveBeenCalledTimes(1);
     });
 });

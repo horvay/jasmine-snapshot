@@ -14,6 +14,7 @@
         "preserveConstEnums": true,
         "suppressImplicitAnyIndexErrors": true,
         "noEmitOnError": true,
+        "lib": ["es2015"],
         "strictNullChecks": true
     }
 }

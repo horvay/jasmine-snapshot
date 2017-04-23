@@ -2,6 +2,7 @@ import * as difflib from "difflib";
 import { MatchesJSSnapshot, KeyExceptionList, ResetExceptionList } from "../src/index";
 
 declare var fail: (message: string) => void;
+declare var console: any;
 
 describe("js test", () =>
 {
@@ -52,5 +53,5 @@ describe("js test", () =>
         MatchesJSSnapshot(`{"greg": "was here"}`, js_object);
         expect(console.error).toHaveBeenCalledTimes(2);
         expect(fail).toBeCalled();
-    })
+    });
 });
