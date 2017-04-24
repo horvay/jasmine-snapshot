@@ -40,7 +40,7 @@ export function MatchesSnapshot(snapshot: string, actual: string)
 
         fail(`Actual does not match snapshot. See above. `);
     }
-};
+}
 
 /**
  * compares an HTML or XML values to a snapshot
@@ -67,7 +67,7 @@ export function MatchesJSONSnapshot(snapshot: string, actual: string)
     let prettySnapshot = snapshot ? json(snapshot) : snapshot;
 
     MatchesSnapshot(prettySnapshot, prettyActual);
-};
+}
 
 let parsed_values = new Array<object>();
 function IsCurcularDependency(value: any)
@@ -86,7 +86,7 @@ function IsCurcularDependency(value: any)
     }
 
     return false;
-};
+}
 
 function collectAllKeys(js_object: any)
 {
@@ -140,4 +140,4 @@ export function MatchesJSSnapshot(snapshot: string, actual: any)
     let prettySnapshot = snapshot ? json(snapshot) : snapshot;
 
     MatchesSnapshot(prettySnapshot, prettyActual);
-};
+}
