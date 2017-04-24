@@ -1,57 +1,59 @@
 import difflib from "difflib";
 import { xml, json } from "vkbeautify";
-import { parseString } from "xml2js";
+import X2JS = require("x2js");
 
 /**
  * Add more entries to this array if you have other exclusions for snapshot checks
  */
 export let KeyExceptionList = ["typeof"];
 
-export let ResetExceptionList = () =>
+export function ResetExceptionList()
 {
     KeyExceptionList = ["typeof"];
-};
+}
 
 declare var console;
 
-export let MatchesSnapshot = (snapshot: string, actual: string) =>
+export function MatchesSnapshot(snapshot: string, actual: string)
 {
     if (actual !== snapshot)
     {
         let diff: string[] = difflib.unifiedDiff(snapshot.split("\n"), actual.split("\n"));
-        diff.forEach(d => console.error(d));
+        let diff_string = "\n*************************************************************\n";
+        diff_string += "* Snapshot did not match Actual. Here is the diff ***********\n";
+        diff_string += "*************************************************************\n\n";
+        diff.forEach(d => diff_string += d + "\n");
+        diff_string += "\n";
 
-        fail("See diff above. Consider updating snapshot (if valid) to:\n\n" + actual);
+        let one_line_actual = actual.replace(/\n/g, "").replace(/\t/g, "");
+        while (one_line_actual.indexOf("  ") !== -1)
+        {
+            one_line_actual = one_line_actual.replace(/(  )/g, " ");
+        }
+
+        diff_string += "*************************************************************\n";
+        diff_string += "* If the Actual is valid, update the snapshot with this     *\n";
+        diff_string += "*************************************************************\n\n";
+        diff_string += ` ----- Formatted ------\n${actual}\n\n ----- Single Line ------\n${one_line_actual}`;
+
+        console.error(diff_string);
+
+        fail(`Actual does not match snapshot. See above. `);
     }
 };
-
-function getJSFromXML(xml: string)
-{
-    return new Promise<object>((resolve, reject) =>
-    {
-        parseString(xml, { async: true }, (err: any, result: any) =>
-        {
-            resolve(result);
-        });
-    });
-}
-
-async function returnJSFromXMLAsync(xml: string)
-{
-    let js_promise = getJSFromXML(xml);
-    let js_object = await js_promise;
-    return js_object;
-}
 
 /**
  * compares an HTML or XML values to a snapshot
  * @param snapshot the snapshot to compare the actual to
  * @param actual the actual xml/html string to compare to the snapshot
  */
-export async function MatchesXMLSnapshot(snapshot: string, actual: string)
+export function MatchesXMLSnapshot(snapshot: string, actual: string)
 {
-    let jsXML = await returnJSFromXMLAsync(actual);
-    MatchesJSSnapshot(snapshot, jsXML);
+    const X2JS2 = X2JS as any; // don't hate me, their typings suck
+    const x2js = new X2JS2();
+
+    let js_actual = x2js.xml2js(actual);
+    MatchesJSSnapshot(snapshot, js_actual);
 }
 
 /**
@@ -59,16 +61,16 @@ export async function MatchesXMLSnapshot(snapshot: string, actual: string)
  * @param snapshot the snapshot to compare the actual to
  * @param actual the json string to compare to the snapshot
  */
-export let MatchesJSONSnapshot = (snapshot: string, actual: string) =>
+export function MatchesJSONSnapshot(snapshot: string, actual: string)
 {
-    let prettyActual = json(actual);
-    let prettySnapshot = json(snapshot);
+    let prettyActual = actual ? json(actual) : actual;
+    let prettySnapshot = snapshot ? json(snapshot) : snapshot;
 
     MatchesSnapshot(prettySnapshot, prettyActual);
 };
 
 let parsed_values = new Array<object>();
-let IsCurcularDependency = (value: any) =>
+function IsCurcularDependency(value: any)
 {
     if (typeof value === "object" && value)
     {
@@ -101,7 +103,7 @@ function collectAllKeys(js_object: any)
         return val;
     });
 
-    return allKeys;
+    return allKeys.sort((a: string, b: string) => (a > b) ? 1 : -1);
 }
 
 function isIEPooOrCurcularReferences(key, value)
@@ -121,7 +123,6 @@ function isIEPooOrCurcularReferences(key, value)
 function orderedStringifyAndClean(js_object: any)
 {
     let keys = collectAllKeys(js_object);
-
     return JSON.stringify(js_object, keys);
 }
 
@@ -132,11 +133,11 @@ function orderedStringifyAndClean(js_object: any)
  * @param snapshot the snapshot to compare the actual to
  * @param actual The actual JS object to compare to the snapshot
  */
-export let MatchesJSSnapshot = (snapshot: string, actual: any) =>
+export function MatchesJSSnapshot(snapshot: string, actual: any)
 {
     parsed_values = new Array<object>();
-    let prettyActual = json(orderedStringifyAndClean(actual));
-    let prettySnapshot = json(snapshot);
+    let prettyActual = actual ? json(orderedStringifyAndClean(actual)) : actual;
+    let prettySnapshot = snapshot ? json(snapshot) : snapshot;
 
     MatchesSnapshot(prettySnapshot, prettyActual);
 };

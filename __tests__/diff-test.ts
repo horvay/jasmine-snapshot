@@ -12,6 +12,11 @@ describe("diff test", () =>
         console.error = jest.fn();
     });
 
+    beforeEach(() =>
+    {
+        jest.resetAllMocks();
+    });
+
     it("matches simple string", () =>
     {
         MatchesSnapshot("greg", "greg");
@@ -25,7 +30,7 @@ describe("diff test", () =>
         difflib.default = { unifiedDiff: mock };
 
         MatchesSnapshot("tyler", "moose");
-        expect(fail).lastCalledWith("See diff above. Consider updating snapshot (if valid) to:\n\nmoose");
-        expect(console.error).toHaveBeenCalledTimes(2);
+        expect(fail).lastCalledWith("Actual does not match snapshot. See above. ");
+        expect(console.error).toHaveBeenCalledTimes(1);
     });
 });

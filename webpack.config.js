@@ -43,7 +43,8 @@ const config = {
 	plugins: plugins,
 	externals: {
 		vkbeautify: 'vkbeautify',
-		difflib: 'difflib'
+		difflib: 'difflib',
+		x2js: 'x2js'
 	}
 };
 
