@@ -2,6 +2,42 @@ import difflib from "difflib";
 import { xml, json } from "vkbeautify";
 import X2JS = require("x2js");
 
+let currentSpec = "";
+jasmine.getEnv().addReporter({
+    specStarted: function (result)
+    {
+        currentSpec = result.fullName;
+    }
+});
+
+let nativeWarn = window.console.log;
+window.console.warn = function ()
+{
+    if (
+        (arguments.length === 1)
+        && (typeof arguments[0] === "string")
+        && (arguments[0].indexOf("[xmldom ") !== -1)
+    )
+    {
+        return;
+    };
+    nativeWarn.apply(window.console, arguments);
+};
+
+let nativeError = window.console.log;
+window.console.error = function ()
+{
+    if (
+        (arguments.length === 1)
+        && (typeof arguments[0] === "string")
+        && (arguments[0].indexOf("[xmldom error]  entity not found") !== -1)
+    )
+    {
+        return;
+    };
+    nativeError.apply(window.console, arguments);
+};
+
 /**
  * Add more entries to this array if you have other exclusions for snapshot checks
  */
@@ -21,7 +57,9 @@ export function MatchesSnapshot(snapshot: string, actual: string)
         let diff: string[] = difflib.unifiedDiff(snapshot.split("\n"), actual.split("\n"));
         let diff_string = "\n*************************************************************\n";
         diff_string += "* Snapshot did not match Actual. Here is the diff ***********\n";
-        diff_string += "*************************************************************\n\n";
+        diff_string += "*************************************************************\n";
+        diff_string += `${currentSpec}\n\n`;
+
         diff.forEach(d => diff_string += d + "\n");
         diff_string += "\n";
 
