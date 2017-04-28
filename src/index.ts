@@ -10,11 +10,11 @@ jasmine.getEnv().addReporter({
     }
 });
 
-let nativeWarn = window.console.log;
+let nativeWarn = window.console.warn;
 window.console.warn = function ()
 {
     if (
-        (arguments.length === 1)
+        (arguments.length > 0)
         && (typeof arguments[0] === "string")
         && (arguments[0].indexOf("[xmldom ") !== -1)
     )
@@ -24,13 +24,13 @@ window.console.warn = function ()
     nativeWarn.apply(window.console, arguments);
 };
 
-let nativeError = window.console.log;
+let nativeError = window.console.error;
 window.console.error = function ()
 {
     if (
-        (arguments.length === 1)
+        (arguments.length > 0)
         && (typeof arguments[0] === "string")
-        && (arguments[0].indexOf("[xmldom error]  entity not found") !== -1)
+        && (arguments[0].indexOf("entity not found") !== -1)
     )
     {
         return;
