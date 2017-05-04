@@ -87,11 +87,7 @@ export function MatchesSnapshot(snapshot: string, actual: string)
  */
 export function MatchesXMLSnapshot(snapshot: string, actual: string)
 {
-    const X2JS2 = X2JS as any; // don't hate me, their typings suck
-    const x2js = new X2JS2();
-
-    let js_actual = x2js.xml2js(actual);
-    MatchesJSSnapshot(snapshot, js_actual);
+    expectxml(actual).toMatchSnapshot(snapshot);
 }
 
 /**
@@ -107,63 +103,6 @@ export function MatchesJSONSnapshot(snapshot: string, actual: string)
     MatchesSnapshot(prettySnapshot, prettyActual);
 }
 
-let parsed_values = new Array<object>();
-function IsCurcularDependency(value: any)
-{
-    if (typeof value === "object" && value)
-    {
-        if (parsed_values.indexOf(value) === -1)
-        {
-            parsed_values.push(value);
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-function collectAllKeys(js_object: any)
-{
-    const allKeys = new Array<string>();
-
-    JSON.stringify(js_object, (key: string, val: any) =>
-    {
-        if (isIEPooOrCurcularReferences(key, val))
-        {
-            return;
-        }
-
-        allKeys.push(key);
-        return val;
-    });
-
-    return allKeys.sort((a: string, b: string) => (a > b) ? 1 : -1);
-}
-
-function isIEPooOrCurcularReferences(key, value)
-{
-    if (typeof key === "string" && KeyExceptionList.some((ex) => key.indexOf(ex) !== -1))
-    {
-        return true;
-    }
-    else if (IsCurcularDependency(value))
-    {
-        return true;
-    }
-
-    return false;
-}
-
-function orderedStringifyAndClean(js_object: any)
-{
-    let keys = collectAllKeys(js_object);
-    return JSON.stringify(js_object, keys);
-}
-
 /**
  * Compares the snapshot to the actual option. Note this method will stringify
  * the actual value for the snnapshot compare and remove any key/values that contain the
@@ -173,9 +112,126 @@ function orderedStringifyAndClean(js_object: any)
  */
 export function MatchesJSSnapshot(snapshot: string, actual: any)
 {
-    parsed_values = new Array<object>();
-    let prettyActual = actual ? json(orderedStringifyAndClean(actual)) : actual;
-    let prettySnapshot = snapshot ? json(snapshot) : snapshot;
+    expectjs(actual).toMatchSnapshot(snapshot);
+}
 
-    MatchesSnapshot(prettySnapshot, prettyActual);
+export function expectjs(actual: Object)
+{
+    return new SnapshotJSInner(actual);
+}
+
+export function expectxml(xml_actual: string)
+{
+    return new SnapshotXMLInner(xml_actual);
+}
+
+abstract class SnapshotInner<T extends Object | string>
+{
+    protected actual: T;
+
+    constructor(actual: T)
+    {
+        this.actual = actual;
+    }
+
+    public afterApplying(transformFunction: (actual: T) => T)
+    {
+        this.actual = transformFunction(this.actual);
+        return this;
+    }
+}
+
+export class SnapshotJSInner extends SnapshotInner<Object>
+{
+    private parsed_values = new Array<object>();
+
+    constructor(actual: Object)
+    {
+        super(actual);
+        this.actual = actual;
+    }
+
+    public toMatchSnapshot(snapshot: string): void
+    {
+        let prettyActual = this.actual ? json(this.getOrderedStringifyAndClean()) : this.actual;
+        let prettySnapshot = snapshot ? json(snapshot) : snapshot;
+
+        MatchesSnapshot(prettySnapshot, prettyActual);
+    }
+
+    private getOrderedStringifyAndClean()
+    {
+        let keys = this.collectAllKeysAndRemoveCircular(this.actual);
+        return JSON.stringify(this.actual, keys);
+    }
+
+    private collectAllKeysAndRemoveCircular(js_object: any)
+    {
+        const allKeys = new Array<string>();
+
+        let json = JSON.stringify(js_object, (key: string, val: any) =>
+        {
+            if (this.isIEPooOrCurcularReferences(key, val))
+            {
+                return;
+            }
+
+            allKeys.push(key);
+            return val;
+        });
+
+        this.actual = JSON.parse(json);
+
+        return allKeys.sort((a: string, b: string) => (a > b) ? 1 : -1);
+    }
+
+    private isIEPooOrCurcularReferences(key, value)
+    {
+        if (typeof key === "string" && KeyExceptionList.some((ex) => key.indexOf(ex) !== -1))
+        {
+            return true;
+        }
+        else if (this.IsCurcularDependency(value))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private IsCurcularDependency(value: any)
+    {
+        if (value && typeof value === "object")
+        {
+            if (this.parsed_values.indexOf(value) === -1)
+            {
+                this.parsed_values.push(value);
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+export class SnapshotXMLInner extends SnapshotInner<string>
+{
+    constructor(xml_actual: string)
+    {
+        super(xml_actual);
+        this.actual = xml_actual;
+    }
+
+    public toMatchSnapshot(snapshot: string): void
+    {
+        const X2JS2 = X2JS as any; // don't hate me, their typings suck
+        const x2js = new X2JS2();
+
+        let js_actual = x2js.xml2js(this.actual);
+        expectjs(js_actual).toMatchSnapshot(snapshot);
+    }
 }

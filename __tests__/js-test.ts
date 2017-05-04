@@ -1,5 +1,5 @@
 import * as difflib from "difflib";
-import { MatchesJSSnapshot, KeyExceptionList, ResetExceptionList } from "../src/index";
+import { MatchesJSSnapshot, KeyExceptionList, ResetExceptionList, expectjs } from "../src/index";
 
 declare var fail: (message: string) => void;
 
@@ -60,8 +60,21 @@ describe("js test", () =>
 
         let js_object = { greg: "was here", mom: { sid: "bad" } };
 
-        MatchesJSSnapshot(`{"greg": "was here"}`, js_object);
+        expectjs(js_object).toMatchSnapshot(`{"greg": "was here"}`);
         expect(console.error).toHaveBeenCalledTimes(1);
         expect(fail).toBeCalled();
+    });
+
+    it("removes circular dependency even when having key with same name that is not circular", () =>
+    {
+        let mock = jest.fn();
+        mock.mockReturnValue(["tyler", "moose"]);
+        difflib.default = { unifiedDiff: mock };
+        let js_object = { greg: "was here", mom: {}, fred: { mom: "perfectly valid" } };
+
+        js_object.mom = js_object;
+
+        expectjs(js_object).toMatchSnapshot(`{"fred": {"mom": "perfectly valid"}, "greg": "was here"}`);
+        expect(fail).not.toBeCalled();
     });
 });
