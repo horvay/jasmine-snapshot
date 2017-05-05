@@ -153,7 +153,7 @@ export class SnapshotJSInner extends SnapshotInner<Object>
 
     public toMatchSnapshot(snapshot: string): void
     {
-        let prettyActual = this.actual ? json(this.getOrderedStringifyAndClean()) : this.actual;
+        let prettyActual = this.actual ? json(this.getOrderedStringifyAndClean()) : "";
         let prettySnapshot = snapshot ? json(snapshot) : snapshot;
 
         MatchesSnapshot(prettySnapshot, prettyActual);

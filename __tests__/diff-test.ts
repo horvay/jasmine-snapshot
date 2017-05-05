@@ -6,31 +6,31 @@ declare var console: any;
 
 describe("diff test", () =>
 {
+    let lastFailedWith = "";
+    let consoleErrorCalled = 0;
+
     beforeAll(() =>
     {
-        fail = jest.fn();
-        console.error = jest.fn();
+        fail = (message: string) => lastFailedWith = message;
+        console.error = (error: string) => consoleErrorCalled++;
     });
 
     beforeEach(() =>
     {
-        jest.resetAllMocks();
+        lastFailedWith = "";
+        consoleErrorCalled = 0;
     });
 
     it("matches simple string", () =>
     {
         MatchesSnapshot("greg", "greg");
-        expect(fail).not.toBeCalled();
+        expect(lastFailedWith).toBe("");
     });
 
     it("fails with diff", () =>
     {
-        let mock = jest.fn();
-        mock.mockReturnValue(["tyler", "moose"]);
-        difflib.default = { unifiedDiff: mock };
-
         MatchesSnapshot("tyler", "moose");
-        expect(fail).lastCalledWith("Actual does not match snapshot. See above. ");
-        expect(console.error).toHaveBeenCalledTimes(1);
+        expect(lastFailedWith).toBe("Actual does not match snapshot. See above. ");
+        expect(consoleErrorCalled).toBe(1);
     });
 });

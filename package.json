@@ -1,10 +1,10 @@
 {
   "name": "jasmine-snapshot",
-  "version": "1.5.4",
+  "version": "1.5.5",
   "description": "A snapshotting library similar to what jest offers but for Jasmine 2 instead. Written in Typescript",
   "main": "lib/jasmine-snapshot.min.js",
   "typings": [
-    "src/jasmine-snapshot.d.ts"
+    "jasmine-snapshot.d.ts"
   ],
   "scripts": {
     "build": "webpack --env build",
@@ -20,13 +20,15 @@
   },
   "devDependencies": {
     "@types/jasmine": "^2.5.47",
-    "@types/jest": "*",
-    "jest": "*",
-    "jest-cli": "^19.0.2",
-    "ts-jest": "^19.0.10",
+    "jasmine": "^2.6.0",
+    "jasmine-core": "^2.6.1",
+    "karma-chrome-launcher": "^2.1.1",
+    "karma-jasmine": "^1.1.0",
+    "karma-typescript": "^3.0.1",
+    "karma": "^1.6.0",
     "ts-loader": "^2.0.3",
     "tslint": "*",
-    "typescript": "^2.2.2",
+    "typescript": "*",
     "webpack": "^2.3.3",
     "yargs": "6.6.0"
   },
