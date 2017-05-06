@@ -122,7 +122,7 @@ export function MatchesSnapshot(snapshot: string, actual: string, automagic?: bo
 
 function create_one_liner(actual: string)
 {
-    let one_line_actual = actual.replace(/\n/g, "").replace(/\t/g, "");
+    let one_line_actual = actual.replace(/\n/g, "").replace(/\t/g, "").replace(/\\"/g, `\\\\\\\\"`);
     while (one_line_actual.indexOf("  ") !== -1)
     {
         one_line_actual = one_line_actual.replace(/(  )/g, " ");

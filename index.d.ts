@@ -11,7 +11,7 @@ declare module 'jasmine-snapshot' {
 	export class SnapshotJSInner
 	{
 		constructor(actual: Object);
-		public toMatchSnapshot(snapshot: string): void;
+		public toMatchSnapshot(snapshot?: string): void;
 		public afterApplying(transformFunction: (actual: Object) => Object);
 	}
 
@@ -19,7 +19,7 @@ declare module 'jasmine-snapshot' {
 	export class SnapshotXMLInner
 	{
 		constructor(actual: string);
-		public toMatchSnapshot(snapshot: string): void;
+		public toMatchSnapshot(snapshot?: string): void;
 		public afterApplying(transformFunction: (actual: string) => string);
 	}
 
