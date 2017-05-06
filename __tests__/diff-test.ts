@@ -12,7 +12,8 @@ describe("diff test", () =>
     beforeAll(() =>
     {
         fail = (message: string) => lastFailedWith = message;
-        console.error = (error: string) => consoleErrorCalled++;
+        let old_console = console.error;
+        console.error = (error: string) => { consoleErrorCalled++; old_console(error); };
     });
 
     beforeEach(() =>

@@ -45,10 +45,6 @@ describe("xml test", () =>
 
     it("matches complex html two", () =>
     {
-        // let mock = jest.fn();
-        // mock.mockReturnValue(["tyler", "moose"]);
-        // difflib.default = { unifiedDiff: mock };
-
         // tslint:disable-next-line:max-line-length
         let snapshot = `{ "div": { "_class": "Select Select--single is-open is-searchable", "div": [ { "_class": "Select-control", "span": [ { "_class": "Select-multi-value-wrapper", "_id": "react-select-#--value", "div": [ { "__text": "Select...", "_class": "Select-placeholder" }, { "_class": "Select-input", "_style": "display: inline-block;", "div": { "_style": "position: absolute; top: 0px; left: 0px; visibility: hidden; height: 0px; overflow: scroll; white-space: pre;" }, "input": { "_aria-activedescendant": "react-select-#--option-0", "_aria-expanded": "true", "_aria-haspopup": "true", "_aria-owns": "react-select-#--list", "_role": "combobox", "_style": "width: 5px; box-sizing: content-box;", "_value": "" } } ] }, { "_class": "Select-arrow-zone", "span": { "_class": "Select-arrow" } } ] }, { "_class": "Select-menu-outer", "div": { "_class": "Select-menu", "_id": "react-select-#--list", "_role": "listbox", "div": [ { "__text": "IGLOO Ice Home for Men of The North", "_class": "Select-option is-focused", "_id": "react-select-#--option-0", "_role": "option" }, { "__text": "MOOSE The Moose shall be loose", "_class": "Select-option", "_id": "react-select-#--option-1", "_role": "option" } ] } } ] }}`;
 
@@ -62,10 +58,6 @@ describe("xml test", () =>
 
     it("matches complex string", () =>
     {
-        // let mock = jest.fn();
-        // mock.mockReturnValue(["tyler", "moose"]);
-        // difflib.default = { unifiedDiff: mock };
-
         let snapshot = `
         {
             "html": {

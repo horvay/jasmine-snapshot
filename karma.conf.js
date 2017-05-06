@@ -12,7 +12,7 @@ module.exports = function (config)
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['jasmine', 'karma-typescript'],
 
-    
+
 
     // list of files / patterns to load in the browser
     files: [
@@ -33,6 +33,23 @@ module.exports = function (config)
       "./src/**/*.ts": ["karma-typescript"], // *.tsx for React Jsx
       "./__tests__/**/*.ts": ["karma-typescript"], // *.tsx for React Jsx
     },
+
+    karmaTypescriptConfig: {
+            compilerOptions: {
+                target: "es5",
+                sourceMap: true,
+                module: "commonjs",
+                moduleResolution: "node",
+                isolatedModules: false,
+                jsx: "react",
+                experimentalDecorators: true,
+                emitDecoratorMetadata: true,
+                types: ["jasmine"]
+            },
+            coverageOptions: {
+                instrumentation: false
+            }
+        },
 
 
     // test results reporter to use

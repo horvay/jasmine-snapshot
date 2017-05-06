@@ -8,11 +8,11 @@ describe("diff test", () =>
 {
     beforeAll(() =>
     {
-
+        // do nothging
     });
 
     it("matches simple string", () =>
     {
-
+        // do nothing
     });
 });

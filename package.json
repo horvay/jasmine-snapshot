@@ -1,6 +1,6 @@
 {
   "name": "jasmine-snapshot",
-  "version": "1.5.5",
+  "version": "1.6.0",
   "description": "A snapshotting library similar to what jest offers but for Jasmine 2 instead. Written in Typescript",
   "main": "lib/jasmine-snapshot.min.js",
   "typings": [
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@types/vkbeautify": "^0.99.1",
+    "@types/node": "^7.0.18",
     "difflib": "^0.2.4",
     "ts-promise": "^0.3.4",
     "vkbeautify": "^0.99.2",

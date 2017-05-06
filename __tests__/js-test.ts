@@ -11,7 +11,9 @@ describe("js test", () =>
     beforeAll(() =>
     {
         fail = (message: string) => failedCalledAmount++;
-        console.error = (error: string) => consoleErrorCalled++;
+        let old_console = console.error;
+        console.error = (error: string) => { consoleErrorCalled++; old_console(error); };
+
     });
 
     beforeEach(() =>
@@ -30,10 +32,6 @@ describe("js test", () =>
 
     it("does not match for empty object", () =>
     {
-        // let mock = (one: string, two: string) =>
-        // mock.mockReturnValue(["tyler", "moose"]);
-        // difflib.default = { unifiedDiff: mock };
-
         expectjs({ greg: "was here" }).toMatchSnapshot(``);
         expect(failedCalledAmount).toBe(1);
     });
@@ -59,10 +57,6 @@ describe("js test", () =>
 
     it("does not match snapshot", () =>
     {
-        // let mock = jest.fn();
-        // mock.mockReturnValue(["tyler", "moose"]);
-        // difflib.default = { unifiedDiff: mock };
-
         let js_object = { greg: "was here", mom: { sid: "bad" } };
 
         expectjs(js_object).toMatchSnapshot(`{"greg": "was here"}`);
@@ -72,9 +66,6 @@ describe("js test", () =>
 
     it("removes circular dependency even when having key with same name that is not circular", () =>
     {
-        // let mock = jest.fn();
-        // mock.mockReturnValue(["tyler", "moose"]);
-        // difflib.default = { unifiedDiff: mock };
         let js_object = { greg: "was here", mom: {}, fred: { mom: "perfectly valid" } };
 
         js_object.mom = js_object;

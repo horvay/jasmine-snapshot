@@ -6,6 +6,8 @@ declare module 'jasmine-snapshot' {
 	export let MatchesJSSnapshot: (snapshot: string, actual: any) => void;
 	export let ResetExceptionList: () => void;
 
+	export function registerSnapshots(snapshot_object: { [key: string]: string })
+
 	export class SnapshotJSInner
 	{
 		constructor(actual: Object);

@@ -2,41 +2,71 @@ import difflib from "difflib";
 import { xml, json } from "vkbeautify";
 import X2JS = require("x2js");
 
-let currentSpec = "";
+let current_spec = "";
+let level = 0;
 jasmine.getEnv().addReporter({
+    suiteStarted: function (result)
+    {
+        level++;
+    },
     specStarted: function (result)
     {
-        currentSpec = result.fullName;
+        current_spec = result.fullName;
+    },
+    suiteDone: function (result)
+    {
+        level--;
+
+        if (level < snapshot_level)
+        {
+            snapshot_level = 0;
+            current_snapshot_object = {};
+            reportSnapshotFile();
+        }
     }
 });
 
-let nativeWarn = window.console.warn;
-window.console.warn = function ()
+function reportSnapshotFile()
 {
-    if (
-        (arguments.length > 0)
-        && (typeof arguments[0] === "string")
-        && (arguments[0].indexOf("[xmldom ") !== -1)
-    )
-    {
-        return;
-    };
-    nativeWarn.apply(window.console, arguments);
-};
+    let snapshot_file_text = "\n**** If actual is valid, update your snapshot with the following ****\n{";
 
-let nativeError = window.console.error;
-window.console.error = function ()
-{
-    if (
-        (arguments.length > 0)
-        && (typeof arguments[0] === "string")
-        && (arguments[0].indexOf("entity not found") !== -1)
-    )
+    let has_snapshots = false;
+    // tslint:disable-next-line:forin
+    for (let snapshot in new_snapshot_object)
     {
-        return;
-    };
-    nativeError.apply(window.console, arguments);
-};
+        has_snapshots = true;
+        snapshot_file_text += `\n\t"${snapshot}": \`${new_snapshot_object[snapshot]}\`,`;
+    }
+
+    if (has_snapshots)
+    {
+        snapshot_file_text = snapshot_file_text.slice(0, snapshot_file_text.length - 1);
+        snapshot_file_text += "\n}\n\n";
+    }
+
+    console.error(snapshot_file_text);
+}
+
+let current_snapshot_object: { [key: string]: string } = {};
+let new_snapshot_object: { [key: string]: string } = {};
+let snapshot_level = 0;
+export function registerSnapshots(snapshot_object: { [key: string]: string })
+{
+    current_snapshot_object = snapshot_object;
+    snapshot_level = level;
+}
+
+let lastAutomagicSnapshot = 0;
+function getSnapshotAutomagically_saveActual(actual: string)
+{
+    let one_line_actual = create_one_liner(actual);
+
+    let snapshot_name = `${current_spec} ${++lastAutomagicSnapshot}`;
+    new_snapshot_object[snapshot_name] = one_line_actual;
+
+    let snapshot = current_snapshot_object[snapshot_name];
+    return snapshot ? snapshot : "";
+}
 
 /**
  * Add more entries to this array if you have other exclusions for snapshot checks
@@ -50,34 +80,47 @@ export function ResetExceptionList()
 
 declare var console;
 
-export function MatchesSnapshot(snapshot: string, actual: string)
+export function MatchesSnapshot(snapshot: string, actual: string, automagic?: boolean)
 {
     if (actual !== snapshot)
     {
         let diff: string[] = difflib.unifiedDiff(snapshot.split("\n"), actual.split("\n"));
-        let diff_string = "\n*************************************************************\n";
-        diff_string += "* Snapshot did not match Actual. Here is the diff ***********\n";
-        diff_string += "*************************************************************\n";
-        diff_string += `${currentSpec}\n\n`;
+        let diff_string = "\n";
+        diff_string += `**** ${current_spec} diff *****\n\n`;
 
-        diff.forEach(d => diff_string += d + "\n");
+        diff.forEach(d =>
+        {
+            if (d !== "--- \n" && d !== "+++ \n" &&
+            !(d.length > 5 && d.slice(0, 2) === "@@"))
+            {
+                diff_string += d + "\n";
+            }
+        });
+
         diff_string += "\n";
 
-        let one_line_actual = actual.replace(/\n/g, "").replace(/\t/g, "");
-        while (one_line_actual.indexOf("  ") !== -1)
+        if (!automagic)
         {
-            one_line_actual = one_line_actual.replace(/(  )/g, " ");
+            let one_line_actual = create_one_liner(actual);
+
+            diff_string += "**** If the Actual is valid, update the snapshot with this ****\n";
+            diff_string += ` ----- Formatted ------\n${actual}\n\n ----- Single Line ------\n${one_line_actual}`;
         }
-
-        diff_string += "*************************************************************\n";
-        diff_string += "* If the Actual is valid, update the snapshot with this     *\n";
-        diff_string += "*************************************************************\n\n";
-        diff_string += ` ----- Formatted ------\n${actual}\n\n ----- Single Line ------\n${one_line_actual}`;
-
         console.error(diff_string);
 
         fail(`Actual does not match snapshot. See above. `);
     }
+}
+
+function create_one_liner(actual: string)
+{
+    let one_line_actual = actual.replace(/\n/g, "").replace(/\t/g, "");
+    while (one_line_actual.indexOf("  ") !== -1)
+    {
+        one_line_actual = one_line_actual.replace(/(  )/g, " ");
+    }
+
+    return one_line_actual;
 }
 
 /**
@@ -151,12 +194,22 @@ export class SnapshotJSInner extends SnapshotInner<Object>
         this.actual = actual;
     }
 
-    public toMatchSnapshot(snapshot: string): void
+    public toMatchSnapshot(snapshot?: string): void
     {
         let prettyActual = this.actual ? json(this.getOrderedStringifyAndClean()) : "";
-        let prettySnapshot = snapshot ? json(snapshot) : snapshot;
 
-        MatchesSnapshot(prettySnapshot, prettyActual);
+        let prettySnapshot = snapshot;
+        if (snapshot === null || snapshot === undefined)
+        {
+            let auto_snapshot = getSnapshotAutomagically_saveActual(prettyActual);
+            prettySnapshot = auto_snapshot ? json(auto_snapshot) : "";
+        }
+        else
+        {
+            prettySnapshot = snapshot ? json(snapshot) : snapshot;
+        }
+
+        MatchesSnapshot(prettySnapshot, prettyActual, true);
     }
 
     private getOrderedStringifyAndClean()
@@ -235,3 +288,31 @@ export class SnapshotXMLInner extends SnapshotInner<string>
         expectjs(js_actual).toMatchSnapshot(snapshot);
     }
 }
+
+let nativeWarn = window.console.warn;
+window.console.warn = function ()
+{
+    if (
+        (arguments.length > 0)
+        && (typeof arguments[0] === "string")
+        && (arguments[0].indexOf("[xmldom ") !== -1)
+    )
+    {
+        return;
+    };
+    nativeWarn.apply(window.console, arguments);
+};
+
+let nativeError = window.console.error;
+window.console.error = function ()
+{
+    if (
+        (arguments.length > 0)
+        && (typeof arguments[0] === "string")
+        && (arguments[0].indexOf("entity not found") !== -1)
+    )
+    {
+        return;
+    };
+    nativeError.apply(window.console, arguments);
+};
