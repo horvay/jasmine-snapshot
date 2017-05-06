@@ -23,6 +23,13 @@ jasmine.getEnv().addReporter({
             current_snapshot_object = {};
             reportSnapshotFile();
         }
+    },
+    jasmineDone: function (results)
+    {
+        if (new_snapshot_object)
+        {
+            reportSnapshotFile();
+        }
     }
 });
 
@@ -45,6 +52,7 @@ function reportSnapshotFile()
     }
 
     console.error(snapshot_file_text);
+    new_snapshot_object = {};
 }
 
 let current_snapshot_object: { [key: string]: string } = {};
@@ -199,8 +207,10 @@ export class SnapshotJSInner extends SnapshotInner<Object>
         let prettyActual = this.actual ? json(this.getOrderedStringifyAndClean()) : "";
 
         let prettySnapshot = snapshot;
+        let use_autosnapshot = false;
         if (snapshot === null || snapshot === undefined)
         {
+            use_autosnapshot = true;
             let auto_snapshot = getSnapshotAutomagically_saveActual(prettyActual);
             prettySnapshot = auto_snapshot ? json(auto_snapshot) : "";
         }
@@ -209,7 +219,7 @@ export class SnapshotJSInner extends SnapshotInner<Object>
             prettySnapshot = snapshot ? json(snapshot) : snapshot;
         }
 
-        MatchesSnapshot(prettySnapshot, prettyActual, true);
+        MatchesSnapshot(prettySnapshot, prettyActual, use_autosnapshot);
     }
 
     private getOrderedStringifyAndClean()
@@ -279,7 +289,7 @@ export class SnapshotXMLInner extends SnapshotInner<string>
         this.actual = xml_actual;
     }
 
-    public toMatchSnapshot(snapshot: string): void
+    public toMatchSnapshot(snapshot?: string): void
     {
         const X2JS2 = X2JS as any; // don't hate me, their typings suck
         const x2js = new X2JS2();
