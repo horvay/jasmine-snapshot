@@ -299,7 +299,7 @@ window.console.warn = function ()
     )
     {
         return;
-    };
+    }
     nativeWarn.apply(window.console, arguments);
 };
 
@@ -313,6 +313,6 @@ window.console.error = function ()
     )
     {
         return;
-    };
+    }
     nativeError.apply(window.console, arguments);
 };
