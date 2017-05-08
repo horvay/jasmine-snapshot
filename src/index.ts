@@ -1,13 +1,153 @@
 import difflib from "difflib";
 import { xml, json } from "vkbeautify";
 import X2JS = require("x2js");
+import "./overrideconsole";
 
+let current_snapshot_object: { [key: string]: string } = {};
+export function registerSnapshots(snapshot_object: { [key: string]: string }, name: string)
+{
+    current_snapshot_object = snapshot_object;
+    current_suite = new AutoSnapshotSuite(current_level, name);
+}
+
+class AutoSnapshot
+{
+    public key: string;
+    public text: string;
+    public diff: Array<string>;
+}
+
+let auto_snapshot_siute_history = new Array<AutoSnapshotSuite>();
+class AutoSnapshotSuite
+{
+    public snapshots = Array<AutoSnapshot>();
+    public level = 0;
+    private fail_counter_for_autosnapshot = 0;
+    private last_automagic_snapshot = 0;
+    private name: string;
+
+    constructor(snapshot_level: number, suite_name: string)
+    {
+        this.level = snapshot_level;
+        this.name = suite_name;
+    }
+
+    public getSnapshotAutomagically_saveActual(actual: string): string
+    {
+        let auto_snapshot = new AutoSnapshot();
+        auto_snapshot.key = create_one_liner(`${current_spec} ${++this.last_automagic_snapshot}`);
+        auto_snapshot.text = create_one_liner(actual);
+        this.snapshots.push(auto_snapshot);
+
+        let snapshot = current_snapshot_object[auto_snapshot.key];
+        return snapshot ? snapshot : "";
+    }
+
+    public hasFailure(): boolean
+    {
+        return this.fail_counter_for_autosnapshot > 0;
+    }
+
+    public reportFailure(diff: Array<string>)
+    {
+        this.snapshots[this.snapshots.length - 1].diff = diff;
+        this.fail_counter_for_autosnapshot++;
+    }
+
+    public getText(): string
+    {
+        let snapshot_file_text = "\n**** If actual is valid, update your snapshot with the following ****\n{";
+
+        let has_snapshots = false;
+
+        for (let snapshot of this.snapshots)
+        {
+            has_snapshots = true;
+            snapshot_file_text += `\n\t"${snapshot.key}": \`${snapshot.text}\`,`;
+        }
+
+        if (has_snapshots)
+        {
+            snapshot_file_text = snapshot_file_text.slice(0, snapshot_file_text.length - 1);
+            snapshot_file_text += "\n}\n\n";
+        }
+
+        return snapshot_file_text;
+    }
+
+    public pushToHistory()
+    {
+        auto_snapshot_siute_history.push(this);
+    }
+
+    public getHTML(): string
+    {
+        if (!this.name) { throw "name not defined for snapshot suite"; }
+
+        if (!this.hasFailure())
+        {
+            return `<p style="color: green; font-size: 25px; font-weight: bold;">===Auto snapshot suite, ${this.name}, has no problems!===</p>`;
+        }
+
+        let snapshot_file_html = `<p style="color: red; font-size: 25px; font-weight: bold;">===Suite, ${this.name}, had problems===</p>`;
+
+        this.snapshots.forEach((snapshot) =>
+        {
+            if (snapshot.diff)
+            {
+                snapshot_file_html += `<div>>Test: "${snapshot.key}" did not match the snapshot:</div><br //>`;
+                snapshot.diff.forEach((d) =>
+                {
+                    if (d.length >= 3 && (d.slice(0, 3) === "---" || d.slice(0, 3) === "+++") || d.slice(0, 2) === "@@")
+                    {
+                        return;
+                    }
+                    else if (d.charAt(0) === "-")
+                    {
+                        snapshot_file_html += `<span style="color: red">${d.replace(/ /g, "&nbsp;")}</span><br //>`;
+                    }
+                    else if (d.charAt(0) === "+")
+                    {
+                        snapshot_file_html += `<span style="color: green">${d.replace(/ /g, "&nbsp;")}</span><br //>`;
+                    }
+                    else
+                    {
+                        snapshot_file_html += `${d.replace(/ /g, "&nbsp;")}<br //>`;
+                    }
+                });
+            }
+        });
+
+        snapshot_file_html += `<p style="text-decoration: underline; font-weight: bold;">If actual is valid, update your snapshot with the following <//p>`;
+        snapshot_file_html += "<div style='color: blue;'>{";
+
+        let has_snapshots = false;
+
+        for (let snapshot of this.snapshots)
+        {
+            has_snapshots = true;
+            snapshot_file_html += `<br //>&nbsp;&nbsp;&nbsp;&nbsp;"${snapshot.key}": \`${snapshot.text}\`,`;
+        }
+
+        if (has_snapshots)
+        {
+            snapshot_file_html = snapshot_file_html.slice(0, snapshot_file_html.length - 1);
+            snapshot_file_html += "<br //>}</div></p>";
+        }
+
+        return snapshot_file_html;
+    }
+}
+
+/************ Jasmine Reporter ************/
+
+let current_suite: AutoSnapshotSuite | null;
 let current_spec = "";
-let level = 0;
+let current_level = 0;
 jasmine.getEnv().addReporter({
     suiteStarted: function (result)
     {
-        level++;
+        current_level++;
     },
     specStarted: function (result)
     {
@@ -15,66 +155,48 @@ jasmine.getEnv().addReporter({
     },
     suiteDone: function (result)
     {
-        level--;
+        current_level--;
 
-        if (level < snapshot_level)
+        if (current_suite && current_level < current_suite.level)
         {
-            snapshot_level = 0;
-            current_snapshot_object = {};
-            reportSnapshotFile();
+            if (current_suite.hasFailure)
+            {
+                console.error(current_suite.getText());
+            }
+
+            current_suite.pushToHistory();
+            current_suite = null;
         }
     },
     jasmineDone: function (results)
     {
-        if (new_snapshot_object)
+        if (current_suite)
         {
-            reportSnapshotFile();
+            if (current_suite.hasFailure)
+            {
+                console.error(current_suite.getText());
+            }
+
+            current_suite.pushToHistory();
+            current_suite = null;
         }
+
+        if (auto_snapshot_siute_history.length === 0)
+        {
+            return;
+        }
+
+        let html_summary = auto_snapshot_siute_history.reduce(
+            (prev_html, curr_suite) =>
+            {
+                return prev_html + "<br //>" + curr_suite.getHTML();
+            }, "");
+
+        document.body.innerHTML = html_summary;
     }
 });
 
-function reportSnapshotFile()
-{
-    let snapshot_file_text = "\n**** If actual is valid, update your snapshot with the following ****\n{";
-
-    let has_snapshots = false;
-    // tslint:disable-next-line:forin
-    for (let snapshot in new_snapshot_object)
-    {
-        has_snapshots = true;
-        snapshot_file_text += `\n\t"${snapshot}": \`${new_snapshot_object[snapshot]}\`,`;
-    }
-
-    if (has_snapshots)
-    {
-        snapshot_file_text = snapshot_file_text.slice(0, snapshot_file_text.length - 1);
-        snapshot_file_text += "\n}\n\n";
-    }
-
-    console.error(snapshot_file_text);
-    new_snapshot_object = {};
-}
-
-let current_snapshot_object: { [key: string]: string } = {};
-let new_snapshot_object: { [key: string]: string } = {};
-let snapshot_level = 0;
-export function registerSnapshots(snapshot_object: { [key: string]: string })
-{
-    current_snapshot_object = snapshot_object;
-    snapshot_level = level;
-}
-
-let lastAutomagicSnapshot = 0;
-function getSnapshotAutomagically_saveActual(actual: string)
-{
-    let one_line_actual = create_one_liner(actual);
-
-    let snapshot_name = `${current_spec} ${++lastAutomagicSnapshot}`;
-    new_snapshot_object[snapshot_name] = one_line_actual;
-
-    let snapshot = current_snapshot_object[snapshot_name];
-    return snapshot ? snapshot : "";
-}
+/*************** Matching logic ***************/
 
 /**
  * Add more entries to this array if you have other exclusions for snapshot checks
@@ -93,13 +215,21 @@ export function MatchesSnapshot(snapshot: string, actual: string, automagic?: bo
     if (actual !== snapshot)
     {
         let diff: string[] = difflib.unifiedDiff(snapshot.split("\n"), actual.split("\n"));
+
+        if (automagic)
+        {
+            if (!current_suite) { throw "autoagic snapshot with no registered snapshot object"; }
+
+            current_suite.reportFailure(diff);
+        }
+
         let diff_string = "\n";
         diff_string += `**** ${current_spec} diff *****\n\n`;
 
         diff.forEach(d =>
         {
             if (d !== "--- \n" && d !== "+++ \n" &&
-            !(d.length > 5 && d.slice(0, 2) === "@@"))
+                !(d.length > 5 && d.slice(0, 2) === "@@"))
             {
                 diff_string += d + "\n";
             }
@@ -210,8 +340,10 @@ export class SnapshotJSInner extends SnapshotInner<Object>
         let use_autosnapshot = false;
         if (snapshot === null || snapshot === undefined)
         {
+            if (!current_suite) { throw "Use of autosnapshot without registering snapshot object"; }
+
             use_autosnapshot = true;
-            let auto_snapshot = getSnapshotAutomagically_saveActual(prettyActual);
+            let auto_snapshot = current_suite.getSnapshotAutomagically_saveActual(prettyActual);
             prettySnapshot = auto_snapshot ? json(auto_snapshot) : "";
         }
         else
@@ -298,31 +430,3 @@ export class SnapshotXMLInner extends SnapshotInner<string>
         expectjs(js_actual).toMatchSnapshot(snapshot);
     }
 }
-
-let nativeWarn = window.console.warn;
-window.console.warn = function ()
-{
-    if (
-        (arguments.length > 0)
-        && (typeof arguments[0] === "string")
-        && (arguments[0].indexOf("[xmldom ") !== -1)
-    )
-    {
-        return;
-    }
-    nativeWarn.apply(window.console, arguments);
-};
-
-let nativeError = window.console.error;
-window.console.error = function ()
-{
-    if (
-        (arguments.length > 0)
-        && (typeof arguments[0] === "string")
-        && (arguments[0].indexOf("entity not found") !== -1)
-    )
-    {
-        return;
-    }
-    nativeError.apply(window.console, arguments);
-};

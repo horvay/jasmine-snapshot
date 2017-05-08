@@ -5,14 +5,14 @@ describe("level 1", () =>
 {
     beforeAll(() =>
     {
-        registerSnapshots(snapshots);
+        registerSnapshots(snapshots, "ztesttest");
     });
 
     describe("level 2", () =>
     {
         it("creates snapshot json ", () =>
         {
-            let greg = { fred: "greg" };
+            let greg = { fred: "\"greg\"" };
             let fred = { greg: "greg" };
 
             expectjs(greg).toMatchSnapshot();

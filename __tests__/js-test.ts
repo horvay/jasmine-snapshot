@@ -1,5 +1,6 @@
 import * as difflib from "difflib";
-import { MatchesJSSnapshot, KeyExceptionList, ResetExceptionList, expectjs } from "../src/index";
+import { MatchesJSSnapshot, KeyExceptionList, ResetExceptionList, expectjs, registerSnapshots } from "../src/index";
+import { snapshots } from "./js-test.snapshots";
 
 declare var fail: (message: string) => void;
 
@@ -14,6 +15,7 @@ describe("js test", () =>
         let old_console = console.error;
         console.error = (error: string) => { consoleErrorCalled++; old_console(error); };
 
+        registerSnapshots(snapshots, "js-test");
     });
 
     beforeEach(() =>
@@ -26,7 +28,7 @@ describe("js test", () =>
 
     it("matches for simple object", () =>
     {
-        expectjs({ greg: "was here" }).toMatchSnapshot(`{"greg":    "was here"   }`);
+        expectjs({ greg: "was here" }).toMatchSnapshot();
         expect(failedCalledAmount).toBe(0);
     });
 
@@ -59,7 +61,7 @@ describe("js test", () =>
     {
         let js_object = { greg: "was here", mom: { sid: "bad" } };
 
-        expectjs(js_object).toMatchSnapshot(`{"greg": "was here"}`);
+        expectjs(js_object).toMatchSnapshot();
         expect(consoleErrorCalled).toBe(1);
         expect(failedCalledAmount).toBe(1);
     });
