@@ -1,6 +1,6 @@
 {
   "name": "jasmine-snapshot",
-  "version": "1.7.5",
+  "version": "1.7.6",
   "description": "A snapshotting library similar to what jest offers but for Jasmine 2 instead. Written in Typescript",
   "main": "lib/jasmine-snapshot.min.js",
   "typings": [
