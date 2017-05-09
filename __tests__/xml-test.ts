@@ -1,15 +1,19 @@
 import * as difflib from "difflib";
-import { expectxml } from "../src/index";
+import { expectxml, registerSnapshots } from "../src/index";
 
 declare var fail: (message: string) => void;
 
 describe("xml test", () =>
 {
     let lastFailedWith = "";
+    let snapshots = {
+        "xml test matches complex string 1": `{ "html": { "div": { "__text": "some&nbsp;text", "_id": "fart", "_name": "knocker" } }}`
+    };
 
     beforeAll(() =>
     {
         fail = (message: string) => lastFailedWith = message;
+        registerSnapshots(snapshots, "xml test");
     });
 
     beforeEach(() =>
@@ -58,18 +62,7 @@ describe("xml test", () =>
 
     it("matches complex string", () =>
     {
-        let snapshot = `
-        {
-            "html": {
-                "div": {
-                    "__text": "some text",
-                    "_id": "fart",
-                    "_name": "knocker"
-                }
-            }
-        }`;
-
-        expectxml(`<html><div name="knocker" id="fart">some text</div></html>`).toMatchSnapshot(snapshot);
+        expectxml(`<html><div name="knocker" id="fart">some&nbsp;text</div></html>`).toMatchSnapshot();
 
         expect(lastFailedWith).toBe("");
     });

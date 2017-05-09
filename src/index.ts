@@ -106,15 +106,15 @@ class AutoSnapshotSuite
                     }
                     else if (d.charAt(0) === "-")
                     {
-                        snapshot_file_html += `<span style="color: red">${d.replace(/ /g, "&nbsp;")}</span><br //>`;
+                        snapshot_file_html += `<span style="color: red">${d.replace(/&nbsp;/g, "&amp;nbsp;").replace(/ /g, "&nbsp;")}</span><br //>`;
                     }
                     else if (d.charAt(0) === "+")
                     {
-                        snapshot_file_html += `<span style="color: green">${d.replace(/ /g, "&nbsp;")}</span><br //>`;
+                        snapshot_file_html += `<span style="color: green">${d.replace(/&nbsp;/g, "&amp;nbsp;").replace(/ /g, "&nbsp;")}</span><br //>`;
                     }
                     else
                     {
-                        snapshot_file_html += `${d.replace(/ /g, "&nbsp;")}<br //>`;
+                        snapshot_file_html += `${d.replace(/&nbsp;/g, "&amp;nbsp;").replace(/ /g, "&nbsp;")}<br //>`;
                     }
                 });
             }
@@ -128,7 +128,7 @@ class AutoSnapshotSuite
         for (let snapshot of this.snapshots)
         {
             has_snapshots = true;
-            snapshot_file_html += `<br //>&nbsp;&nbsp;&nbsp;&nbsp;"${snapshot.key}": \`${snapshot.text}\`,`;
+            snapshot_file_html += `<br //>&nbsp;&nbsp;&nbsp;&nbsp;"${snapshot.key}": \`${snapshot.text.replace(/&nbsp;/g, "&amp;nbsp;")}\`,`;
         }
 
         if (has_snapshots)
