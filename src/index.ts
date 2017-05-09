@@ -23,7 +23,8 @@ class AutoSnapshotSuite
     public snapshots = Array<AutoSnapshot>();
     public level = 0;
     private fail_counter_for_autosnapshot = 0;
-    private last_automagic_snapshot = 0;
+    private last_automagic_snapshot_spec = "";
+    private last_automagic_snapshot_number = 0;
     private name: string;
 
     constructor(snapshot_level: number, suite_name: string)
@@ -35,7 +36,18 @@ class AutoSnapshotSuite
     public getSnapshotAutomagically_saveActual(actual: string): string
     {
         let auto_snapshot = new AutoSnapshot();
-        auto_snapshot.key = create_one_liner(`${current_spec} ${++this.last_automagic_snapshot}`);
+
+        if (current_spec === this.last_automagic_snapshot_spec)
+        {
+            this.last_automagic_snapshot_number++;
+        }
+        else
+        {
+            this.last_automagic_snapshot_number = 1;
+            this.last_automagic_snapshot_spec = current_spec;
+        }
+
+        auto_snapshot.key = create_one_liner(`${current_spec} ${this.last_automagic_snapshot_number}`);
         auto_snapshot.text = create_one_liner(actual);
         this.snapshots.push(auto_snapshot);
 
