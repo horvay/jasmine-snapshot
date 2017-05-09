@@ -82,6 +82,8 @@ class AutoSnapshotSuite
 
     public getHTML(): string
     {
+        document.body.style.fontFamily = "Courier New";
+        document.body.style.whiteSpace = "nowrap";
         if (!this.name) { throw "name not defined for snapshot suite"; }
 
         if (!this.hasFailure())
