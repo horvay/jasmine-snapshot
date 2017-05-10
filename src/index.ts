@@ -1,4 +1,4 @@
-import difflib from "difflib";
+import * as difflib from "difflib";
 import { xml, json } from "vkbeautify";
 import X2JS = require("x2js");
 import "./overrideconsole";
