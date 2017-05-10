@@ -3,7 +3,7 @@ This allows you to compare snapshots to html or javascript objects, and gives a 
 
 I made this library because my company needed to be able to test on a browser, and facebook's jest (which has snapshots) does not allow you to do this.
 
-This library will not manage your snapshots like jest does, which makes it slightly less accomidating. However, if your snapshot is out of date, it will give you a diff between the old and the new, and will tell what to copy and paste into your  snapshots.
+As of version 1.7, this library will make managing snapshots much easier. Now you get an in browser summary of the diff between the actual and the snapshot. Also, you don't have to store your own snapshots as it will create the entire snapshot file and you just need to copy and paste the final results where ever you want to store the snapshots.
 
 # Basic Strings
 The most basic feature is to compare a string to a snapshot. This isn't very useful on its own but if it fails, it will give a nice diff between the two strings in the output log.
@@ -28,143 +28,35 @@ The much more useful feature is to compare javascript objects to a snapshot. It 
 First some examples of successfully matching compares.
 
 ```ts
-import { MatchesJSSnapshot } from "jasmine-snapshot";
+import { expectjs, registerSnapshots, expectxml } from "jasmine-snapshot";
 
 it("matces JS snapshot ", () =>
 {
     let actual = { chicken_type: "fried" };
-
-    // do stuff . . .
-
-    MatchesJSSnapshot(`{"chicken_type" :   "fried" }`, actual);
-});
-
-it("matces complex JS snapshot ", () =>
-{
-    let actual = {
-        chicken_type: "fried",
-        your: "mother",
-        circular: {},
-        complex: {
-            woahwoah: "woah",
-            array: ["woah", "woah", "woah", "watch the magic"]
-        }
-    };
-
-    actual.circular = actual;
-
-    // Do real stuff . . .
-
-    let snapshot = `{
-        "chicken_type": "fried",
-        "complex": {
-            "array": [
-                "woah",
-                "woah",
-                "woah",
-                "watch the magic"
-            ],
-            "woahwoah": "woah"
-        },
-        "your": "mother"
-    }`;
-
-    MatchesJSSnapshot(snapshot, actual);
+    expectjs(actual).toMatchSnapshot();
 });
 ```
 
-Note that the circular property was removed since it was a circular reference and you can't stringify it. Also note that the snapshot will be arranged in alphabetical order, so the order of properties in a complex object do not matter.
-
-Next these will fail with the diff informations showing in the log.
+# XML/HTML objects
+Also, you can do checks with XML and XML'ish type things.
+Note that the snapshot is JSON formed from the HTML. That is because the JSON can be ordered alphabetically so the order of HTML tag attributes will not affect the result.
 
 ```ts
-it("Does not match snapshot ", () =>
+it("does a basic html snapshot", () =>
 {
-    let actual = {
-        chicken_type: "fried",
-        your: "mother",
-        complex: {
-            woahwoah: "woah",
-            array: ["woah", "woah", "woah", "watch the magic"]
-        }
-    };
+    let actual = `<div id="freddy" class="ribbit frogs"><span>hails yeahs</span></div>`;
 
-    // Do real stuff . . .
-
-    let snapshot = `{
-            "chicken_type": "fried",
-            "complex": {
-                "array": ["yeah","yeah","yeah","watch the magic"],
-                "woahwoah": "woah"
-            },
-            "your": "mother"
-        }`;
-
-    MatchesSnapshot(snapshot, actual);
+    expectxml(actual).toMatchSnapshot();
 });
 ```
 
-This will produce the following output:
-
-```sh
-*************************************************************
-* Snapshot did not match Actual. Here is the diff ***********
-*************************************************************
-
----
-
-+++
-
-@@ -2,9 +2,9 @@
-
-     "chicken_type": "fried",
-     "complex": {
-         "array": [
--            "yeah",
--            "yeah",
--            "yeah",
-+            "woah",
-+            "woah",
-+            "woah",
-             "watch the magic"
-         ],
-         "woahwoah": "woah"
-
-*************************************************************
-* If the Actual is valid, update the snapshot with this     *
-*************************************************************
-
- ----- Formatted ------
-{
-    "chicken_type": "fried",
-    "complex": {
-        "array": [
-            "woah",
-            "woah",
-            "woah",
-            "watch the magic"
-        ],
-        "woahwoah": "woah"
-    },
-    "your": "mother"
-}
-
- ----- Single Line ------
-{ "chicken_type": "fried", "complex": { "array": [ "woah", "woah", "woah", "watch the magic" ], "woahwoah": "woah" }, "your": "mother"}'
-Chrome 57.0.2987 (Windows 10 0.0.0) uscodetabledropdown  Does not match snapshot  FAILED
-        Failed: Actual does not match snapshot. See above.
-            at o (C:/Users/GREGOR~1/AppData/Local/Temp/karma-typescript-bundle-46320RrUeuBnxAz8b.js:37879:2002)
-            at Object.p [as MatchesJSSnapshot] (C:/Users/GREGOR~1/AppData/Local/Temp/karma-typescript-bundle-46320RrUeuBnxAz8b.js:37879:2590)
-            at Object.<anonymous> (spec/uscodetabledropdown.spec.js:36:28)
-```
-
-Also, you can do checks with XML and XML'ish type things. Here is an example checking HTML generated by react checked using Enzyme.
+Here is an example checking HTML generated by react checked using Enzyme.
 
 ```ts
 import * as React from "react";
 import * as Enzyme from "enzyme";
 import { FormControl } from "react-bootstrap";
-import { MatchesXMLSnapshot } from "jasmine-snapshot";
+import { expectjs, registerSnapshots, expectxml } from "jasmine-snapshot";
 
 it("Render basic text area with bootstrap ", () =>
 {
@@ -172,16 +64,23 @@ it("Render basic text area with bootstrap ", () =>
         <FormControl componentClass="textarea" value={"aoeu"} />
     );
 
-    let snapshot = `
-    {
-        "textarea": {
-            "__text": "aoeu",
-            "_class": "form-control"
-        }
-    }`;
-
-    MatchesXMLSnapshot(snapshot, elem.html());
+    expectxml(elem.html()).toMatchSnapshot();
 });
 ```
 
-Note that the snapshot is JSON formed from the HTML. That is because the JSON can be ordered alphabetically so the order of HTML tag attributes will not affect the result.
+See the example-test.ts for more examples.
+
+# Managing snapshots
+Unlike jest, this library requires some managing of the snapshots yourself to some degree. If you run the example-test.ts test right now, some snapshots will match while others will fail to match.
+
+To see the results, click the debug button on the browser that karma opens.
+
+![debug](debug.png)
+
+Then you should see the following results:
+
+![results](results.png)
+
+You can see here that it gives you a nice diff of the differences between the snapshot and the actual.
+
+If you want to update your snapshots you must copy and paste the blue snapshots to your snapshot location. See example-test.ts for more details.
