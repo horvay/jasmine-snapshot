@@ -25,7 +25,22 @@ it("matces simple snapshot", () => {
 # Javascript objects
 The much more useful feature is to compare javascript objects to a snapshot. It will take any JS object, remove circular references, and stringify the JS object. Then it will prettify both the snapshot and the actual JS stringified object. If they don't match, it will give you a diff of the two prettified JSON strings and tell you what to put in your snapshot if you want to update it.
 
-First some examples of successfully matching compares.
+The first thing you need to do is register a snapshot object to use and give it a name:
+
+```ts
+let snapshots = {
+    
+};
+        
+beforeAll(() =>
+{
+    registerSnapshots(snapshots, "snapshot suite name");
+});
+```
+
+Note you can only have one registered snapshot object at a time at this point. So you can put them on the base describes or register a snapshot file before any test run for all your test (though this snapshot objects will get huge if you do this.) Generally I put the snapshot object in it's own file.
+
+Here is an example of a successfully matching compares assuming you have registered a snapshot object and updated it.
 
 ```ts
 import { expectjs, registerSnapshots, expectxml } from "jasmine-snapshot";
