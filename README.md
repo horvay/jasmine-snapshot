@@ -38,7 +38,7 @@ beforeAll(() =>
 });
 ```
 
-Note you can only have one registered snapshot object at a time at this point. So you can put them on the base describes or register a snapshot file before any test run for all your test (though this snapshot objects will get huge if you do this.) Generally I put the snapshot object in it's own file.
+Note you can only have one registered snapshot object for a describe, so you cannot register a snapshot file on a base describe and again on an inner describe (no nesting.) I usually register a snapshot object for each base level describe and put the snapshots in their own file that I then import.
 
 Here is an example of a successfully matching compares assuming you have registered a snapshot object and updated it.
 
