@@ -206,7 +206,7 @@ jasmine.getEnv().addReporter({
                 return prev_html + "<br //>" + curr_suite.getHTML();
             }, "");
 
-        document.body.innerHTML = html_summary;
+        document.body.innerHTML = html_summary + document.body.innerHTML;
     }
 });
 
