@@ -1,6 +1,5 @@
 /*global __dirname, require, module*/
 const webpack = require('webpack');
-const UglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
 const path = require('path');
 const env = require('yargs').argv.env; // use --env with webpack 2
 
@@ -9,7 +8,6 @@ var plugins = [], outputFile;
 
 if (env === 'build')
 {
-	plugins.push(new UglifyJsPlugin({ minimize: true }));
 	outputFile = libraryName + '.min.js';
 }
 else
