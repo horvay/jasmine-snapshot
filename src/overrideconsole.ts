@@ -1,5 +1,5 @@
-let nativeWarn = window.console.warn;
-window.console.warn = function ()
+let nativeWarn = console.warn;
+console.warn = function ()
 {
     if (
         (arguments.length > 0)
@@ -9,11 +9,11 @@ window.console.warn = function ()
     {
         return;
     }
-    nativeWarn.apply(window.console, arguments);
+    nativeWarn.apply(console, arguments);
 };
 
-let nativeError = window.console.error;
-window.console.error = function ()
+let nativeError = console.error;
+console.error = function ()
 {
     if (
         (arguments.length > 0)
@@ -23,5 +23,5 @@ window.console.error = function ()
     {
         return;
     }
-    nativeError.apply(window.console, arguments);
+    nativeError.apply(console, arguments);
 };
