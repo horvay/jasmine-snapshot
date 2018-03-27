@@ -1,4 +1,13 @@
 # jasmine-snapshot
+
+## **Now works on both nodejs and the browser!**
+
+Special thanks to [jtisekar](https://github.com/jtisekar) for creating the pull request to enable nodejs support! [PR8](https://github.com/horvay/jasmine-snapshot/pull/8)
+
+Also thanks to [Qazzian](https://github.com/Qazzian) for pull request [PR7](https://github.com/horvay/jasmine-snapshot/pull/7)
+
+## Description
+
 This allows you to compare snapshots to html or javascript objects, and gives a diff when they don't match - similar to what jest snapshots do. The purpose of this library is to take away the effort of making "expected" results for your test.
 
 I made this library because my company needed to be able to test on a browser, and facebook's jest (which has snapshots) does not allow you to do this.
@@ -29,9 +38,9 @@ The first thing you need to do is register a snapshot object to use and give it 
 
 ```ts
 let snapshots = {
-    
+
 };
-        
+
 beforeAll(() =>
 {
     registerSnapshots(snapshots, "snapshot suite name");
