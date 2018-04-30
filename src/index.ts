@@ -94,11 +94,11 @@ class AutoSnapshotSuite
 
     public getHTML(): string
     {
-      if(typeof document !== 'undefined') {
-        document.body.style.fontFamily = "Courier New";
-        document.body.style.whiteSpace = "nowrap";
-      }
-      if (!this.name) { throw "name not defined for snapshot suite"; }
+        if(typeof document !== 'undefined') {
+            document.body.style.fontFamily = "Courier New";
+            document.body.style.whiteSpace = "nowrap";
+        }
+        if (!this.name) { throw "name not defined for snapshot suite"; }
 
         if (!this.hasFailure())
         {
@@ -209,9 +209,9 @@ jasmine.getEnv().addReporter({
             }, "");
 
         if(typeof document !== 'undefined') {
-          document.body.innerHTML = html_summary + document.body.innerHTML;
+            document.body.innerHTML = html_summary + document.body.innerHTML;
         } else {
-          console.log(html_summary);
+            console.log(html_summary);
         }
     }
 });
