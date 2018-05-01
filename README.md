@@ -2,7 +2,7 @@
 
 ## **Now works on both nodejs and the browser!**
 
-Special thanks to [jtisekar](https://github.com/jtisekar) for creating the pull request to enable nodejs support! [PR8](https://github.com/horvay/jasmine-snapshot/pull/8)
+Special thanks to [jtisekar](https://github.com/jtisekar) for creating the pull request to enable nodejs support! [PR8](https://github.com/horvay/jasmine-snapshot/pull/8) [PR9](https://github.com/horvay/jasmine-snapshot/pull/9)
 
 Also thanks to [Qazzian](https://github.com/Qazzian) for pull request [PR7](https://github.com/horvay/jasmine-snapshot/pull/7)
 
