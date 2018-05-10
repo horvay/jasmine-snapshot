@@ -16,7 +16,6 @@
     "@types/vkbeautify": "^0.99.1",
     "@types/node": "^7.0.18",
     "difflib": "^0.2.4",
-    "ts-promise": "^0.3.4",
     "vkbeautify": "^0.99.2",
     "x2js": "^3.1.0"
   },
