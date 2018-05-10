@@ -33,7 +33,7 @@ describe("sample snapshotting", () =>
     describe("complex examples", () =>
     {
         let snapshots = {
-            "sample snapshotting complex examples does a more complex js snapshot 1": `{ "DEFAULT_TIMEOUT_INTERVAL": 5000, "MAX_PRETTY_PRINT_ARRAY_LENGTH": 100, "MAX_PRETTY_PRINT_DEPTH": 40, "currentEnv_": { "clock": {} }, "errors": {}, "matchers": {}, "matchersUtil": {}, "util": {}, "version": "2.6.1"}`,
+            "sample snapshotting complex examples does a more complex js snapshot 1": `{ "DEFAULT_TIMEOUT_INTERVAL": 5000, "MAX_PRETTY_PRINT_ARRAY_LENGTH": 50, "MAX_PRETTY_PRINT_CHARS": 1000, "MAX_PRETTY_PRINT_DEPTH": 8, "currentEnv_": { "clock": {} }, "matchers": {}, "matchersUtil": {}, "util": {}, "version": "2.99.0"}`,
             "sample snapshotting complex examples does a more complex html snapshot 1": `{ "script": { "__text": "window.__karma__.loaded();", "_type": "text/javascript" }}`
         };
 
@@ -45,7 +45,6 @@ describe("sample snapshotting", () =>
         it("does a more complex js snapshot", () =>
         {
             let actual = jasmine as any;
-            actual.location = document.location;
             delete actual.errors;
 
             expectjs(actual).toMatchSnapshot();
@@ -54,7 +53,6 @@ describe("sample snapshotting", () =>
         it("does a more complex html snapshot", () =>
         {
             let actual = window.document.body.innerHTML;
-
             expectxml(actual).toMatchSnapshot();
         });
     });
